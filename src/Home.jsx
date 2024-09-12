@@ -1,29 +1,42 @@
 //Hooks
 //Misc
 //CSS
+import "@ui5/webcomponents-icons/dist/log.js"
 
 // Authentication
-import auth from './Firebase'
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
-import { Avatar, Icon, Input, ListItemStandard, ShellBar, ShellBarItem, SideNavigation, SideNavigationItem } from '@ui5/webcomponents-react'
-import { Outlet } from 'react-router-dom';
+
+import { useAuthState } from "react-firebase-hooks/auth";
+
+import { auth } from './Firebase.js'
+import { useEffect } from "react";
+import AppBar from "./components/AppBar.jsx";
+import Search from "./pages/Search.jsx";
+import NewGarage from "./pages/NewGarage.jsx";
+import MyGarages from "./pages/MyGarages.jsx";
+import BookGarage from "./pages/BookGarage.jsx";
 
 //Components
 
 function App() {
-  const auth = getAuth();
+
+  let [user] = useAuthState(auth);
+  // const navigate = useNavigate();
+  // useEffect(() => {
+  //   console.log(user)
+  // }, [])
+
+  const handleSignOut = () => {
+    // signOut(auth).then((d) => { navigate("/login") }).catch((e) => { console.log("Unable to logout") })
+  }
+
 
   return (
     <>
-      <ShellBar primaryTitle='Park-It' secondaryTitle='Rent a garage' profile={<Avatar initials='UU'/>} className='shadow-sm'
-        searchField={<Input placeholder='Search with location name' icon={<Icon name="search" />} showClearIcon/>}
-        showSearchField='true'
-        onSearchButtonClick={()=>{}}
-        menuItems={<><ListItemStandard>Book a Garage</ListItemStandard><ListItemStandard>My Garages</ListItemStandard><ListItemStandard>Manage Bookings</ListItemStandard></>}>
-      </ShellBar>
-      <div>
-        <Outlet/>
-      </div>
+    <AppBar/>
+    <BookGarage/>
+    {/* <MyGarages/> */}
+    {/* <NewGarage/> */}
+    {/* <Search/> */}
     </>
   )
 }
