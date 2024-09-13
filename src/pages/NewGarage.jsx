@@ -1,8 +1,18 @@
 import { Button, Checkbox, FormControl, FormHelperText, FormLabel, Input, Option, Select, Textarea } from '@mui/joy'
 import { useForm, Controller } from "react-hook-form"
-import React from 'react'
+import React, { useState } from 'react'
+import { useAuthState } from 'react-firebase-hooks/auth'
+import { auth } from '../Firebase'
+import { getDownloadURL, uploadBytes, ref as storageRef } from 'firebase/storage'
+import { uploadImage, setData } from '../utils/firebaseHelper'
+import { v4 as uuid } from 'uuid'
+import { useNavigate } from 'react-router-dom'
 
 function NewGarage() {
+
+    const [user] = useAuthState(auth);
+    const [coverImage, setCoverImage] = useState();
+    const navigate = useNavigate()
 
     const { control, handleSubmit } = useForm({
         defaultValues: {
@@ -18,11 +28,30 @@ function NewGarage() {
             size: 0,
             hasCCTV: false,
             hasEV: false,
-            hasRoof: false
+            hasRoof: false,
+            coverPicture: ""
         }
     })
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {  
+        if (coverImage == null) {
+            alert("Add a cover image");
+            return
+        }
+        try {
+            let coverImageURL = await uploadImage(`garages/images/${uuid()}`, coverImage);
+            data.ownerId = user.uid;
+            data.coverImageURL = coverImageURL
+            delete data.coverPicture
+            setData('garages', data, uuid(), {})
+                .then((d) => { 
+                    console.log(d);
+                    navigate("/mygarages")
+                })
+                .catch((e) => { console.log("Error data save", e) })
+        } catch (error) {
+            alert("Failed to save data")
+        }
         console.log(data)
     }
 
@@ -97,7 +126,11 @@ function NewGarage() {
                         render={({ field }) => <Checkbox {...field} label="Roof" />}
                     />
                 </div>
-
+                <Controller
+                    name="coverPicture"
+                    control={control}
+                    render={({ field }) => <FormControl><FormLabel >Garage Image</FormLabel><Input type='file' {...field} slotProps={{ input: { onChange: (e) => { setCoverImage(e.target.files[0]) } } }} /></FormControl>}
+                />
                 <Button type="submit">Submit</Button>
             </form>
         </div>
