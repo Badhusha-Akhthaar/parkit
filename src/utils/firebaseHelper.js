@@ -20,10 +20,27 @@ function getGaragesByUser(userId){
 
 }
 
+
+function getGaragesByFilters(filters = []){
+    let garageFilters = filters.map((f)=> where(f.param,"==",f.value))
+    const docRef = collection(db,"garages");
+    console.log(garageFilters)
+    const q = query(docRef,...garageFilters)
+    console.log(q)
+    return getDocs(q)
+}
+
+function getAllBookings(userId){
+    const docRef = collection(db,"bookings");
+    const q = query(docRef,where("bookedBy","==",userId))
+    return getDocs(q)
+}
+
 async function setData(entity, data, id,param) {
     const docRef = doc(db, entity, id);
     setDoc(docRef, data,param);
 }
+
 
 async function uploadImage(path,imageData){
     const imageRef = storageRef(storage,path); //{uid}/garages/{garageId}/image
@@ -38,4 +55,4 @@ async function uploadImage(path,imageData){
     })
 }
 
-export { getData, setData, uploadImage, getGaragesByUser }
+export { getData, setData, uploadImage, getGaragesByUser,getGaragesByFilters,getAllBookings }

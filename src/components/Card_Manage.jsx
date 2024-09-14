@@ -6,7 +6,7 @@ function Card_Manage({data}) {
   console.log({...data})
   return (
     <Card>
-      <div className='font-semibold'>{name}</div>
+      <div className='font-bold text-lg'>{name}</div>
       <div className='font-semibold text-xs'>{description}</div>
       <div className='font-medium text-xs'>{address}</div>
       <AspectRatio minHeight="120px" maxHeight="200px">

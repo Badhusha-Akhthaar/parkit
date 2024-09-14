@@ -1,49 +1,73 @@
 import { Button, Checkbox, FormControl, FormHelperText, FormLabel, Input, Option, Select, Textarea } from '@mui/joy'
 import { useForm, Controller } from "react-hook-form"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+
+import { getData, setData } from '../utils/firebaseHelper.js';
 
 import moment from 'moment'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../Firebase.js';
+import { v4 as uuid } from 'uuid'
 
-function formatDate(date) {
-    let year = date.getFullYear();
-    let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-    let day = String(date.getDate()).padStart(2, '0');
-    let hours = String(date.getHours()).padStart(2, '0');
-    let minutes = String(date.getMinutes()).padStart(2, '0');
-    let seconds = String(date.getSeconds()).padStart(2, '0');
 
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
-}
 
 function BookGarage() {
 
-    const [cost,setCost] = useState(0);
+    const { garageId } = useParams()
+    const [garageInfo,setGarageInfo] = useState()
+    const [user] = useAuthState(auth)
+    const navigate = useNavigate()
+
+    useEffect(() => {
+
+        async function fetchGarageInfo() {
+            let garageData = await getData("garages", garageId);
+            if(garageData.exists()){
+                setGarageInfo(garageData.data())
+            }
+        }
+        if(garageId){
+            fetchGarageInfo()
+        }
+
+    }, [garageId])
 
     const { control, handleSubmit } = useForm({
         defaultValues: {
             startTime: '',
             endTime: ''
         }
-    })
+    });
+
+    function checkValidDate(data) {
+        return moment(data.startTime).isAfter(new Date()) && moment(data.endTime).isAfter(new Date()) && moment(data.startTime).isBefore(moment(data.endTime))
+    }
+
+    function getBookingTime(data) {
+        let actualStart = 30 - (moment(data.startTime).minute() % 30)
+        const validStart = moment(data.startTime).add(actualStart, "minutes");
+        let actualEnd = 30 - (moment(data.endTime).minute() % 30)
+        const validEnd = moment(data.endTime).add(actualEnd, "minutes");
+        return moment.duration(validEnd - validStart).asHours()
+    }
 
     const onSubmit = (data) => {
-        if(moment(data.startTime).isAfter(new Date()) && moment(data.endTime).isAfter(new Date()) && moment(data.startTime).isBefore(moment(data.endTime))){
+        if (checkValidDate(data)) {
             console.log("Valid")
-            let actualStart = 30 - (moment(data.startTime).minute() % 30)
-            const validStart =  moment(data.startTime).add(actualStart, "minutes");
-            console.log(validStart)
-            let actualEnd = 30 - (moment(data.endTime).minute() % 30)
-            const validEnd=  moment(data.endTime).add(actualEnd, "minutes");
-            console.log(validEnd)
-
-
-            console.log('Duration',moment.duration(validEnd - validStart).asHours())
-        }else{
-            console.log("Invalid")
+            let duration = getBookingTime(data)
+            let totalCost = Number(garageInfo.price) * Number(duration)
+            if(confirm(`Booking for ${duration} hours. And total rent will be ₹ ${totalCost}`)){
+                let bookingInfo = {garageId,bookedBy: user.uid,duration,totalCost,...data}
+                setData('bookings',bookingInfo,uuid(),{}).then(()=>{
+                    navigate("/")
+                })
+            }else{
+                alert("Cancelling...")
+            }
+        } else {
+            alert("Select valid time")
         }
-
-        
-        
     }
 
 
@@ -53,12 +77,12 @@ function BookGarage() {
                 <Controller
                     name="startTime"
                     control={control}
-                    render={({ field }) => <FormControl><FormLabel >Start Time</FormLabel><Input type='datetime-local' slotProps={{input: {}}} {...field}/></FormControl>}
+                    render={({ field }) => <FormControl><FormLabel >Start Time</FormLabel><Input type='datetime-local' slotProps={{ input: {} }} {...field} /></FormControl>}
                 />
                 <Controller
                     name="endTime"
                     control={control}
-                    render={({ field }) => <FormControl><FormLabel >End Time</FormLabel><Input type='datetime-local' slotProps={{input: {}}} {...field}/></FormControl>}
+                    render={({ field }) => <FormControl><FormLabel >End Time</FormLabel><Input type='datetime-local' slotProps={{ input: {} }} {...field} /></FormControl>}
                 />
 
                 <Button type="submit">Confirm</Button>

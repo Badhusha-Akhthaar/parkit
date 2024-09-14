@@ -17,7 +17,6 @@ function MyGarages() {
         function fetchData() {
             getGaragesByUser(user.uid)
                 .then((d) => {
-                    // let destructedGarages = d.m
                     setGarages(d.docs)
                 })
                 .catch((e) => { console.log(e) });
@@ -49,7 +48,7 @@ function MyGarages() {
                 {
                     garages.map((garage)=>{
 
-                        return <Card_Manage data={garage.data()}/>
+                        return <Card_Manage key={garage.id} data={garage.data()}/>
 
                     })
                 }

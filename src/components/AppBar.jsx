@@ -15,6 +15,7 @@ function AppBar({ handleSignOut }) {
                 <div className='flex gap-5'>
                     <Link variant='plain' level="title-md" underline='none' component={RouterLink} to="search">Rent a Garage</Link>
                     <Link variant='plain' level="title-md" underline='none' component={RouterLink} to="mygarages">Manage Garage</Link>
+                    <Link variant='plain' level="title-md" underline='none' component={RouterLink} to="bookings">Bookings</Link>
                 </div>
             </div>
             <div className='flex gap-2'>

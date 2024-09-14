@@ -13,6 +13,7 @@ import NewGarage from './pages/NewGarage.jsx'
 import BookGarage from './pages/BookGarage.jsx'
 import Authentication from './pages/Authentication.jsx'
 import EditGarage from './pages/EditGarage.jsx'
+import Bookings from './pages/Bookings.jsx'
 
 const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([
       {
         path: 'manage/:garageId',
         element: <EditGarage/>  
+      },
+      {
+        path: 'bookings',
+        element: <Bookings/> 
       }
     ]
   },

@@ -1,15 +1,21 @@
-import { AspectRatio, Button, Card, CardContent, Chip, Typography } from '@mui/joy'
+import { AspectRatio, Button, Card, CardContent, Chip, Link, Typography } from '@mui/joy'
 import React from 'react'
+import { useNavigate,Link as RouterLink } from 'react-router-dom'
 
-function Card_View() {
+function Card_View({data}) {
+
+  const navigate = useNavigate();
+
+  let {name,description,address,coverImageURL,price,id} = data
   return (
     <Card>
-      <Typography level="title-lg">Sedan for Rent</Typography>
-      <Typography level="body-xs">24,Mosque North Street,Madurai</Typography>
+      <div className='font-bold text-lg'>{name}</div>
+      <div className='font-semibold text-xs'>{description}</div>
+      <div className='font-medium text-xs'>{address}</div>
       <AspectRatio minHeight="120px" maxHeight="200px">
         <img
-          src="https://images.unsplash.com/photo-1527549993586-dff825b37782?auto=format&fit=crop&w=286"
-          srcSet="https://images.unsplash.com/photo-1527549993586-dff825b37782?auto=format&fit=crop&w=286&dpr=2 2x"
+          src={coverImageURL}
+          srcSet={coverImageURL}
           loading="lazy"
           alt=""
         />
@@ -17,7 +23,7 @@ function Card_View() {
       <CardContent>
         <div className='flex justify-between'>
           <div className='flex font-sans items-baseline gap-2'>
-            <div className='text-xl font-bold'>₹ 63.00</div>
+            <div className='text-xl font-bold'>₹ {price}</div>
             <div className='text-xs font-semibold'>/hr</div>
           </div>
           <div>
@@ -26,7 +32,7 @@ function Card_View() {
         </div>
 
         <div className='flex'>
-          <Button className='w-full'>Book</Button>
+          <Button className='w-full' component={RouterLink} to={`/book/${id}`}>Book</Button>
         </div>
       </CardContent>
     </Card>
