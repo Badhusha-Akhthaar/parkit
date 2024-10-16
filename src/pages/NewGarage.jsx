@@ -58,13 +58,6 @@ function NewGarage() {
 
     const onSubmit = async (data) => {
 
-
-
-
-        // if (coverImage == null) {
-        //     alert("Add a cover image");
-        //     return
-        // }
         try {
             let coverImageURL = await uploadImage(`garages/images/${uuid()}`, coverImage);
             data.ownerId = user.uid;
